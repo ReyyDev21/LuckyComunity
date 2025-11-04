@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lucky Community — Roleplay Minecraft</title>
+  <meta name="description" content="Lucky Community - Roleplay Minecraft. Daftar RP, beli skin, dan dapatkan motivasi di komunitas kami." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23000'/%3E%3Ctext x='50' y='55' font-size='36' text-anchor='middle' fill='%23ffd700' font-family='Arial'%3EL%3C/text%3E%3C/svg%3E">
+  <style>
+    /* ===== Reset & base ===== */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:#0b1220; color:#e6eef8}
+    a{color:inherit;text-decoration:none}
+
+    /* ===== Layout ===== */
+    .container{max-width:1100px;margin:36px auto;padding:28px}
+    header{display:flex;align-items:center;gap:18px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo .mark{width:64px;height:64px;border-radius:10px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.6);background:linear-gradient(180deg,#2b6b2b,#1a3e1a)}
+    .logo .mark svg{display:block}
+    h1{font-size:28px;letter-spacing:1px}
+    .tag{font-size:12px;color:#bcd8ff}
+
+    /* ===== Hero ===== */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;margin-top:20px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:14px;padding:22px;box-shadow:0 10px 40px rgba(2,6,23,.7);border:1px solid rgba(255,255,255,0.03)}
+    .hero-left{padding:18px}
+    .lead{font-size:18px;margin-bottom:12px}
+    .sub{color:#bcd8ff;margin-bottom:18px}
+
+    /* Motivational quotes */
+    .quotes{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+    .quote{background:rgba(255,255,255,0.02);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+    .quote small{display:block;color:#9fb8e6;margin-top:8px}
+
+    /* Skin store */
+    .store{display:flex;flex-direction:column;gap:12px}
+    .skin{display:flex;align-items:center;gap:14px}
+    .skin .preview{width:96px;height:96px;background:linear-gradient(180deg,#e7f7ff, #cbe9ff);border-radius:8px;box-shadow:0 10px 30px rgba(2,6,23,.5);display:flex;align-items:center;justify-content:center;color:#0b1220;font-weight:700}
+    .price{font-weight:700}
+
+    /* Register form */
+    form .row{display:flex;gap:10px}
+    input,select,textarea{width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.04);color:inherit}
+    label{font-size:13px;color:#bcd8ff;margin-bottom:6px;display:block}
+
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:10px;cursor:pointer;border:0;background:linear-gradient(90deg,#ffb656,#ff6b2f);box-shadow:0 8px 30px rgba(255,107,47,.12), inset 0 -6px 20px rgba(0,0,0,.15);color:#111;font-weight:700}
+    .muted{color:#9fb8e6}
+
+    /* Footer */
+    footer{margin-top:28px;text-align:center;color:#9fb8e6;font-size:13px}
+
+    /* ===== Minecraft-ish details ===== */
+    .pixel-border{box-shadow: 0 0 0 4px rgba(0,0,0,0.6) inset, 0 6px 8px rgba(0,0,0,0.6);border-radius:10px}
+
+    /* ===== Fire particle canvas overlay ===== */
+    canvas.fire{position:fixed;left:0;top:0;pointer-events:none;mix-blend-mode:screen;z-index:50}
+
+    /* ===== Responsive ===== */
+    @media (max-width:980px){.hero{grid-template-columns:1fr;}.container{padding:18px}}
+
+    /* small interactive hints */
+    .btn:active{transform:translateY(1px) scale(.998)}
+
+    /* Decorative blocky background */
+    .bg-blocks{position:fixed;right:-120px;bottom:-120px;width:520px;height:520px;filter:blur(20px);opacity:.18;transform:rotate(20deg);z-index:0}
+
+    /* Day/Night + Rain */
+    .day-night-toggle{position:fixed;top:20px;right:20px;background:#222;border:2px solid #555;border-radius:10px;color:#fff;padding:10px 14px;cursor:pointer;z-index:100;box-shadow:0 0 15px rgba(255,255,255,0.06)}
+    .rain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;overflow:hidden}
+    .drop{position:absolute;width:2px;height:12px;background:rgba(173,216,230,0.7);animation:fall linear infinite}
+    @keyframes fall{0%{transform:translateY(-10px);opacity:1}100%{transform:translateY(100vh);opacity:0}}
+    body.night{background:radial-gradient(circle at top,#000015,#000);color:#d4f4ff}
+
+    /* Credits */
+    .credits{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:12px}
+    .credit{background:rgba(255,255,255,0.02);padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+  </style>
+</head>
+<body>
+  <canvas class="fire" id="fireCanvas"></canvas>
+  <div class="bg-blocks">
+    <svg width="100%" height="100%" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g" x1="0" x2="1"><stop stop-color="#6fb06f" offset="0"/><stop stop-color="#2b6b2b" offset="1"/></linearGradient>
+      </defs>
+      <rect x="0" y="0" width="400" height="400" fill="url(#g)" rx="18"></rect>
+      <g fill-opacity="0.06" fill="#000">
+        <rect x="20" y="20" width="60" height="60"></rect>
+        <rect x="100" y="80" width="40" height="40"></rect>
+        <rect x="170" y="20" width="80" height="80"></rect>
+        <rect x="260" y="140" width="60" height="60"></rect>
+      </g>
+    </svg>
+  </div>
+
+  <div class="day-night-toggle" id="toggleMode">🌞 Day Mode</div>
+  <div class="rain" id="rain"></div>
+
+  <div class="container" id="app">
+    <header>
+      <div class="logo">
+        <div class="mark pixel-border">
+          <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="56" height="56" rx="8" fill="#1b3d1b" stroke="#2e8b2e" stroke-width="2"/>
+            <rect x="10" y="10" width="18" height="18" fill="#79c46b"/>
+            <rect x="36" y="10" width="18" height="18" fill="#4c9e4c"/>
+            <rect x="10" y="36" width="18" height="18" fill="#4c9e4c"/>
+            <rect x="36" y="36" width="18" height="18" fill="#79c46b"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Lucky Community</h1>
+          <div class="tag">Roleplay Minecraft • Elegant • Realistis</div>
+        </div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:12px;align-items:center">
+        <a class="muted" href="#beranda">Beranda</a>
+        <a class="muted" href="#daftar">Pendaftaran</a>
+        <a class="muted" href="#toko">Toko Skin</a>
+      </div>
+    </header>
+
+    <section class="hero" id="beranda">
+      <div class="card hero-left">
+        <div class="lead">Selamat datang di <strong>Lucky Community</strong> — tempat roleplay Minecraft yang elegan dan immersive. Bergabunglah, berkreasilah, dan temukan cerita baru setiap hari.</div>
+        <div class="sub">Server kami didesain untuk pengalaman roleplay yang realistis, penuh komunitas, dan aman untuk pemain semua usia.</div>
+
+        <div class="quotes">
+          <div class="quote">"Bermain bukan sekadar hiburan — tetapi ruang untuk bercerita." <small>— Lucky Community</small></div>
+          <div class="quote">"Bangun duniamu, bangun karaktermu." <small>— Tim RP</small></div>
+          <div class="quote">"Kerja tim membuat petualangan lebih bermakna." <small>— Komunitas</small></div>
+        </div>
+
+        <hr style="margin:18px 0;border-color:rgba(255,255,255,0.03)">
+
+        <h3 style="margin-bottom:10px">Tentang Toko Skin</h3>
+        <div class="store">
+          <div class="skin card" style="align-items:center">
+            <div class="preview">SKIN</div>
+            <div style="flex:1">
+              <div style="font-weight:800">Skin Premium — "Lucky Armor"</div>
+              <div class="muted">Desain realistis, tekstur halus, cocok untuk RP</div>
+            </div>
+            <div style="text-align:right">
+              <div class="price">15K</div>
+              <button class="btn buy-btn" data-skin="Lucky Armor">Beli</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="card" id="daftar">
+        <h3 style="margin-bottom:8px">Daftar untuk Roleplay</h3>
+        <p class="muted" style="margin-bottom:12px">Isi formulir di bawah — data akan dikirimkan melalui WhatsApp untuk verifikasi.</p>
+
+        <form id="regForm">
+          <label>Nama Lengkap<input type="text" name="fullname" required placeholder="Nama kamu"/></label>
+          <label>Nama In-Game<input type="text" name="ign" required placeholder="Nama Minecraft"/></label>
+          <div class="row" style="margin-top:10px">
+            <label style="flex:1">Umur<input type="number" name="age" min="6" max="99" required placeholder="Umur"/></label>
+            <label style="flex:1">Role yang Diinginkan<select name="role"><option>Petani</option><option>Pedagang</option><option>Penjaga</option><option>Pengrajin</option><option>NPC Khusus</option></select></label>
+          </div>
+          <label style="margin-top:10px">Alasan bergabung<textarea name="reason" rows="3" placeholder="Ceritakan sedikit alasanmu"></textarea></label>
+
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <button type="submit" class="btn">Kirim Pendaftaran</button>
+            <button type="button" class="btn" id="btnRules" style="background:linear-gradient(90deg,#6bd6ff,#4a7aff);box-shadow:0 8px 30px rgba(74,122,255,.12)">Aturan Server</button>
+          </div>
+
+          <p class="muted" style="margin-top:10px;font-size:12px">Catatan: setelah mengirim, admin akan menghubungi melalui WhatsApp untuk proses lanjutan.</p>
+        </form>
+      </aside>
+    </section>
+
+    <section class="card" id="toko" style="margin-top:22px">
+      <h3>Daftar Skin</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px">
+        <div style="width:220px" class="card pixel-border">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:60px;height:60px;background:#e8f6ff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0b1220">A</div>
+            <div style="flex:1">
+              <div style="font-weight:800">Lucky Explorer</div>
+              <div class="muted">15K</div>
+            </div>
+            <button class="btn buy-btn" data-skin="Lucky Explorer">Beli</button>
+          </div>
+        </div>
+
+        <div style="width:220px" class="card pixel-border">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:60px;height:60px;background:#fff1e7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0b1220">B</div>
+            <div style="flex:1">
+              <div style="font-weight:800">Lucky Armor</div>
+              <div class="muted">15K</div>
+            </div>
+            <button class="btn buy-btn" data-skin="Lucky Armor">Beli</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- New: Mini Features Panel -->
+    <section class="card" style="margin-top:22px">
+      <h3>Fitur Tambahan</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px">
+        <div class="card" style="width:220px;text-align:center">
+          <h4>Event Mingguan</h4>
+          <p class="muted">Turnamen RP & treasure hunt setiap minggu untuk hadiah eksklusif.</p>
+        </div>
+        <div class="card" style="width:220px;text-align:center">
+          <h4>Marketplace RP</h4>
+          <p class="muted">Jual-beli item roleplay antar pemain dengan sistem reputasi.</p>
+        </div>
+        <div class="card" style="width:220px;text-align:center">
+          <h4>Custom Achievements</h4>
+          <p class="muted">Dapatkan pencapaian khusus yang terlihat di profil RP.</p>
+        </div>
+        <div class="card" style="width:220px;text-align:center">
+          <h4>Fitur Voice RP (Beta)</h4>
+          <p class="muted">Integrasi voice channel untuk roleplay lebih intens (opsional).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Credits -->
+    <section class="card" style="margin-top:22px;text-align:center">
+      <h3>Credits</h3>
+      <div class="credits">
+        <div class="credit">kazoo <small style="display:block;opacity:.8">(dev web)</small></div>
+        <div class="credit">vell <small style="display:block;opacity:.8">(partner)</small></div>
+      </div>
+    </section>
+
+    <footer>
+      © <strong>Lucky Community</strong> — Roleplay Minecraft • Buat pengalamanmu lebih nyata.
+      <div style="margin-top:8px;font-size:12px;color:#9fb8e6">Made with ❤</div>
+    </footer>
+  </div>
+
+  <script>
+    // ===== Basic app config =====
+    const WA_NUMBER = 'YOUR_WHATSAPP_NUMBER'; // Ganti dengan nomor WhatsApp admin tanpa + atau 0, contoh: 628123456789
+
+    // Fire canvas setup
+    const canvas = document.getElementById('fireCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle{
+      constructor(x,y){
+        this.x = x + (Math.random()-0.5)*12;
+        this.y = y + (Math.random()-0.5)*6;
+        this.vx = (Math.random()-0.5)*1.2;
+        this.vy = - (Math.random()*2 + 1.5);
+        this.life = Math.random()*40 + 40;
+        this.size = Math.random()*6 + 4;
+        this.h = Math.random()*40 + 10;
+      }
+      step(){
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.06;
+        this.life -= 1;
+      }
+      draw(ctx){
+        const alpha = Math.max(this.life/90, 0);
+        const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size*3);
+        g.addColorStop(0, `rgba(255,${Math.floor(200 - this.h)},0,${alpha})`);
+        g.addColorStop(0.6, `rgba(255,${Math.floor(120 - this.h/2)},0,${alpha*0.6})`);
+        g.addColorStop(1, `rgba(0,0,0,0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    function spawnFire(x,y,amount=18){
+      for(let i=0;i<amount;i++) particles.push(new Particle(x,y));
+    }
+
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(let i = particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.step();
+        p.draw(ctx);
+        if(p.life<=0) particles.splice(i,1);
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    document.addEventListener('click', e => {
+      const target = e.target.closest('button, a');
+      if(!target) return;
+      const rect = target.getBoundingClientRect();
+      const x = rect.left + rect.width/2; const y = rect.top + rect.height/2;
+      spawnFire(x,y,28);
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:'smooth',block:'center'});
+    }));
+
+    // Rain effect
+    const rainContainer = document.getElementById('rain');
+    function createRain(){
+      rainContainer.innerHTML='';
+      for(let i=0;i<60;i++){
+        const drop=document.createElement('div');
+        drop.className='drop';
+        drop.style.left=Math.random()*100+'vw';
+        drop.style.animationDuration=(0.5+Math.random()*1.5)+'s';
+        drop.style.animationDelay=Math.random()*2+'s';
+        drop.style.top=-(Math.random()*20)+'vh';
+        rainContainer.appendChild(drop);
+      }
+    }
+    createRain();
+
+    // Toggle Day/Night mode
+    const toggle=document.getElementById('toggleMode');
+    toggle.onclick=()=>{
+      document.body.classList.toggle('night');
+      toggle.textContent=document.body.classList.contains('night')?'🌙 Night Mode':'🌞 Day Mode';
+    }
+
+    // Lightning strike effect (also plays on night)
+    function lightningFlash(){
+      const flash=document.createElement('div');
+      flash.style.position='fixed';
+      flash.style.top='0';
+      flash.style.left='0';
+      flash.style.width='100%';
+      flash.style.height='100%';
+      flash.style.background='white';
+      flash.style.opacity='0.9';
+      flash.style.zIndex='200';
+      document.body.appendChild(flash);
+      setTimeout(()=>flash.remove(),110);
+    }
+
+    document.getElementById('spawnLightning').addEventListener('click', ()=>{
+      lightningFlash();
+      // spawn a few fire particles near center
+      spawnFire(window.innerWidth/2, window.innerHeight/2, 60);
+    });
+
+    // Registration -> send via WhatsApp
+    document.getElementById('regForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const fd = new FormData(this);
+      const data = Object.fromEntries(fd.entries());
+      const text = `Pendaftaran Roleplay%0ANama: ${encodeURIComponent(data.fullname)}%0AIGN: ${encodeURIComponent(data.ign)}%0AUmur: ${encodeURIComponent(data.age)}%0ARole: ${encodeURIComponent(data.role)}%0AAlasan: ${encodeURIComponent(data.reason)}`;
+      if(WA_NUMBER === 'YOUR_WHATSAPP_NUMBER'){
+        alert('Ganti WA_NUMBER di kode dengan nomor WhatsApp admin (contoh: 628123456789) agar pendaftaran dapat dikirim.');
+        return;
+      }
+      const url = `https://wa.me/${WA_NUMBER}?text=${text}`;
+      window.open(url, '_blank');
+    });
+
+    // Buy buttons -> send purchase via WhatsApp
+    document.querySelectorAll('.buy-btn').forEach(b => b.addEventListener('click', function(){
+      const skin = this.getAttribute('data-skin') || 'Skin';
+      const price = '15K';
+      const text = `Pembelian%20Skin%20${encodeURIComponent(skin)}%0AHarga:%20${price}%0AUsername:%20`;
+      if(WA_NUMBER === 'YOUR_WHATSAPP_NUMBER'){
+        alert('Ganti WA_NUMBER di kode dengan nomor WhatsApp admin (contoh: 628123456789) agar pembelian dapat dikirim.');
+        return;
+      }
+      const url = `https://wa.me/${WA_NUMBER}?text=${text}`;
+      window.open(url, '_blank');
+    }));
+
+    // Spawn small fire on logo load
+    window.addEventListener('load', ()=>{
+      const logo = document.querySelector('.logo .mark');
+      if(logo){
+        const r = logo.getBoundingClientRect();
+        spawnFire(r.left + r.width/2, r.top + r.height/2, 22);
+      }
+    });
+
+    // Accessibility: keyboard "Enter" triggers button visual fire
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        const el = document.activeElement;
+        if(el && (el.tagName === 'BUTTON' || el.tagName === 'A')){
+          const rect = el.getBoundingClientRect(); spawnFire(rect.left+rect.width/2, rect.top+rect.height/2, 18);
+        }
+      }
+    });
+
+  </script>
+</body>
+</html>
